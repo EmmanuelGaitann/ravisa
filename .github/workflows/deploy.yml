@@ -11,9 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. CLONER LE CODE
       - name: Checkout latest code
         uses: actions/checkout@v3
 
+      # 2. CONFIGURATION DE PHP ET COMPOSER (ESSENTIEL POUR CODEIGNITER)
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2' # À ajuster selon votre version de CodeIgniter
+          tools: composer
+
+      - name: Install Dependencies (Composer)
+        run: composer install --prefer-dist --no-progress
+        # Cette commande crée le dossier 'vendor/' et rend le projet complet
+
+      # 3. DEPLOIEMENT FTP (La source locale est le projet complet)
       - name: FTP Deploy to o2switch server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -22,7 +35,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT }}
           protocol: ftp
-          local-dir: ./
+          local-dir: ./                 # Nous envoyons tout le projet complet
           server-dir: ${{ secrets.FTP_PATH }}
           exclude: |
             **/.git*
